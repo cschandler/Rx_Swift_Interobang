@@ -23,7 +23,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         topButton.rx_tap
-            .debug("top")
+            .debug("top tapped")
             .subscribe { _ in
                 self.topState.value = .ON
                 self.bottomState.value = .OFF
@@ -31,7 +31,7 @@ class ViewController: UIViewController {
             .addDisposableTo(disposeBag)
         
         bottomButton.rx_tap
-            .debug("bottom")
+            .debug("bottom tapped")
             .subscribe { _ in
                 self.topState.value = .OFF
                 self.bottomState.value = .ON
@@ -40,12 +40,14 @@ class ViewController: UIViewController {
         
         _ = topState
             .asObservable()
+            .debug("top button state changed")
             .subscribeNext { state in
                 self.changeButton(self.topButton, state: state)
             }
         
         _ = bottomState
             .asObservable()
+            .debug("botton button state changed")
             .subscribeNext { state in
                 self.changeButton(self.bottomButton, state: state)
             }
