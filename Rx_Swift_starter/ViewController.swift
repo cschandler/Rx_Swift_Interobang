@@ -15,35 +15,40 @@ class ViewController: UIViewController {
     @IBOutlet weak var topButton: UIButton!
     @IBOutlet weak var bottomButton: UIButton!
     
-    var topState: ButtonState = .ON {
-        didSet {
-            changeButton(topButton, state: topState)
-        }
-    }
-    var bottomState: ButtonState = .OFF {
-        didSet {
-            changeButton(bottomButton, state: bottomState)
-        }
-    }
-    
+    var topState: Variable<ButtonState> = Variable(.ON)
+    var bottomState: Variable<ButtonState> = Variable(.OFF)
     let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         topButton.rx_tap
-            .subscribeNext { _ in
-                self.topState = .ON
-                self.bottomState = .OFF
+            .debug("top")
+            .subscribe { _ in
+                self.topState.value = .ON
+                self.bottomState.value = .OFF
             }
             .addDisposableTo(disposeBag)
         
         bottomButton.rx_tap
-            .subscribeNext { _ in
-                self.topState = .OFF
-                self.bottomState = .ON
+            .debug("bottom")
+            .subscribe { _ in
+                self.topState.value = .OFF
+                self.bottomState.value = .ON
             }
-            .addDisposableTo(disposeBag)        
+            .addDisposableTo(disposeBag)
+        
+        _ = topState
+            .asObservable()
+            .subscribeNext { state in
+                self.changeButton(self.topButton, state: state)
+            }
+        
+        _ = bottomState
+            .asObservable()
+            .subscribeNext { state in
+                self.changeButton(self.bottomButton, state: state)
+            }
     }
     
     func changeButton(button: UIButton, state: ButtonState) {
